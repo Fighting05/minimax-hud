@@ -1,59 +1,70 @@
 # MiniMax HUD
 
-MiniMax Coding Plan 用户专用的轻量级状态栏 HUD。在 Claude Code 状态栏显示上下文使用量、配额信息和项目路径。
+为 MiniMax Coding Plan 用户打造的轻量级状态栏 HUD，用 ❤️ 构建
 
-## 功能特点
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js 18+](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
 
-- **上下文进度条** - 可视化显示上下文使用情况及令牌数量
-- **5小时配额** - 实时显示 5 小时用量
-- **7天配额** - 每周用量追踪
-- **Git 状态** - 分支名、dirty 指示器、ahead/behind 数量
-- **工具活动** - 显示运行中及最近完成的工具
-- **代理状态** - 显示活跃的子代理
-- **待办进度** - 显示任务进度
-- **颜色警告** - 用量增加时颜色变化提示
-- **国际化** - 支持中文和英文
+> 灵感来自 [jarrodwatts/claude-hud](https://github.com/jarrodwatts/claude-hud) · 为 MiniMax 用户打造
 
-## 前置要求
+---
 
-- **MiniMax API** - 需要 MiniMax API 访问权限（通过 ccswitch 或直接配置）
-- **Node.js 18+**
+## ✨ 功能特点
 
-## 快速部署
+| 功能 | 说明 |
+|------|------|
+| 📊 **上下文进度条** | 可视化进度条 + 令牌数量 |
+| ⏱️ **5小时配额** | 实时 5 小时用量追踪 |
+| 📅 **7天配额** | 每周用量监控 |
+| 📍 **Git 状态** | 分支、dirty 指示器、ahead/behind |
+| 🔧 **工具活动** | 运行中 & 最近工具显示 |
+| 🤖 **代理状态** | 活跃子代理追踪 |
+| ✅ **待办进度** | 任务进度可视化 |
+| 🎨 **颜色警告** | 用量动态颜色提示 |
+| 🌍 **国际化** | 中文 & 英文 |
 
-你可以让 Claude Code（使用 MiniMax）帮你自动部署：
+## 📷 效果截图
 
 ```
-请帮我部署 minimax-hud 插件：
-1. 在 ~/.claude/plugins/marketplaces/ 目录下创建 minimax-hud 项目
-2. 复制 src 文件夹和 package.json, tsconfig.json
-3. 运行 npm install && npm run build
-4. 配置 settings.json 的 statusLine
-5. 重启 Claude Code
+项目路径
+[MiniMax-M2.7] [ctx] ██████░░░░░░░░░ 40% (79k/200k) │ 用量 ███░░░░░░░ 25% / 5小时 | ░░░░░░░░░░░ 3% / 7天
+───── 分隔线 ─────
+master ⚡
 ```
 
-或手动部署：
+## 🚀 快速开始
+
+### 前置要求
+
+- Node.js 18+
+- MiniMax API 访问权限
+
+### 安装步骤
 
 ```bash
-# 1. 将此仓库克隆/下载到：
-#    ~/.claude/plugins/marketplaces/minimax-hud/
+# 1. 克隆仓库
+git clone https://github.com/Fighting05/minimax-hud.git
+cd minimax-hud
 
 # 2. 安装依赖
-cd ~/.claude/plugins/marketplaces/minimax-hud
 npm install
 
 # 3. 编译
 npm run build
 
-# 4. 配置 ccswitch 使用 MiniMax
-ccswitch  # 或手动设置 ANTHROPIC_BASE_URL 为 MiniMax
+# 4. 配置 Claude Code
+# 在 ~/.claude/settings.json 中添加：
+{
+  "statusLine": {
+    "command": "bash -c '\"/path/to/node\" \"/path/to/minimax-hud/dist/index.js\"'",
+    "type": "command"
+  }
+}
 
 # 5. 重启 Claude Code
 ```
 
-## 配置选项
-
-
+## ⚙️ 配置选项
 
 编辑 `~/.claude/plugins/marketplaces/minimax-hud/config.json`:
 
@@ -84,51 +95,58 @@ ccswitch  # 或手动设置 ANTHROPIC_BASE_URL 为 MiniMax
 
 ### 配置说明
 
-| 选项 | 说明 | 默认值 |
-|------|------|--------|
-| `language` | 界面语言 (`zh` 或 `en`) | `zh` |
-| `lineLayout` | 布局模式 (`expanded` 或 `compact`) | `expanded` |
-| `showSeparators` | 显示分隔线 | `false` |
-| `pathLevels` | 路径显示深度 (1-3) | `1` |
-| `gitStatus.enabled` | 显示 git 分支/状态 | `true` |
-| `gitStatus.showDirty` | 显示 dirty 指示器 (⚡) | `true` |
-| `gitStatus.showAheadBehind` | 显示 ↑↓ ahead/behind | `false` |
-| `gitStatus.showFileStats` | 显示文件变更统计 | `false` |
-| `showModel` | 显示模型名称 | `true` |
-| `showProject` | 显示项目路径 | `true` |
-| `showContextBar` | 显示上下文进度条 | `true` |
-| `contextValue` | 上下文显示格式 (`percent`, `tokens`, `remaining`) | `percent` |
-| `showUsage` | 显示用量配额 | `true` |
-| `usageBarEnabled` | 显示用量进度条 | `true` |
-| `showTools` | 显示工具活动 | `false` |
-| `showAgents` | 显示代理状态 | `false` |
-| `showTodos` | 显示待办进度 | `false` |
-| `sevenDayThreshold` | 显示 7 天用量的最低百分比 | `5` |
+| 选项 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `language` | `zh` \| `en` | `zh` | 界面语言 |
+| `lineLayout` | `expanded` \| `compact` | `expanded` | 显示模式 |
+| `showSeparators` | `boolean` | `false` | 显示分隔线 |
+| `pathLevels` | `1` \| `2` \| `3` | `1` | 路径深度 |
+| `gitStatus.showDirty` | `boolean` | `true` | 显示 ⚡ dirty 指示 |
+| `gitStatus.showAheadBehind` | `boolean` | `false` | 显示 ↑↓ 数量 |
+| `contextValue` | `percent` \| `tokens` \| `remaining` | `percent` | 上下文显示格式 |
+| `sevenDayThreshold` | `number` | `5` | 显示 7 天用量的最低百分比 |
 
-## 效果截图
-
-```
-项目路径
-[MiniMax-M2.7] [ctx] ██████░░░░░░░░░ 40% (79k/200k) │ 用量 ███░░░░░░░ 25% / 5小时 | ░░░░░░░░░░░ 3% / 7天
-───── 分隔线 ─────
-master ⚡
-```
-
-## 工作原理
+## 🔧 工作原理
 
 MiniMax HUD 从 Claude Code 的 stdin 读取：
 
-- 当前工作目录 (`cwd`)
-- 模型信息 (`model`)
-- 上下文窗口使用情况 (`context_window`)
--  transcript 路径 (`transcript_path`)
+- `cwd` - 当前工作目录
+- `model` - 模型信息
+- `context_window` - 上下文使用统计
+- `transcript_path` - Session transcript 路径
 
-然后从 MiniMax API 获取配额数据并显示在状态栏。
+然后从 MiniMax API 获取配额数据并渲染到状态栏。
 
-## 环境配置
+## 🗂️ 项目结构
 
-确保你的环境已配置 MiniMax API。HUD 从环境变量中读取 `ANTHROPIC_AUTH_TOKEN`。
+```
+minimax-hud/
+├── src/
+│   ├── index.ts          # 入口文件
+│   ├── api.ts            # MiniMax API 客户端
+│   ├── cache.ts          # 用量缓存
+│   ├── config.ts         # 配置管理
+│   ├── git.ts           # Git 状态
+│   ├── stdin.ts         # 输入解析
+│   ├── transcript.ts     # Transcript 解析
+│   ├── types.ts         # TypeScript 类型
+│   ├── i18n/            # 国际化
+│   └── render/          # 渲染模块
+├── dist/                # 编译输出
+└── README.md
+```
 
-## 开源协议
+## 🤝 友链
 
-MIT
+参考学习：
+
+- **[jarrodwatts/claude-hud](https://github.com/jarrodwatts/claude-hud)** - 灵感来源，原版 Claude HUD
+
+## 📄 开源协议
+
+MIT License · © 2024 [Fighting05](https://github.com/Fighting05)
+
+## 🙏 致谢
+
+- [jarrodwatts/claude-hud](https://github.com/jarrodwatts/claude-hud) - 灵感来源
+- [MiniMax](https://www.minimaxi.com/) - API 支持
