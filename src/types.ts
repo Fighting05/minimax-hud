@@ -73,6 +73,11 @@ export interface MiniMaxModelRemain {
   current_weekly_total_count: number;
   current_weekly_usage_count: number;
   weekly_remains_time: number;
+  // Precomputed percent fields (M3 / "general" model era)
+  current_interval_remaining_percent?: number;
+  current_weekly_remaining_percent?: number;
+  end_time?: number;
+  weekly_end_time?: number;
 }
 
 export interface MiniMaxApiResponse {

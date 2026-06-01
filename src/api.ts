@@ -48,20 +48,33 @@ export function fetchMiniMaxUsage(apiKey: string): Promise<MiniMaxApiResponse> {
 export function getUsageData(apiKey: string): Promise<UsageData | null> {
   return fetchMiniMaxUsage(apiKey)
     .then(data => {
-      const minimaxModel = data.model_remains?.find(m => m.model_name.startsWith('MiniMax-M'));
+      if (!data.model_remains?.length) return null;
 
-      if (!minimaxModel) return null;
+      // Find 'general' model (M3 era) or any MiniMax-M prefixed model (legacy)
+      const model = data.model_remains.find(m => m.model_name === 'general')
+        ?? data.model_remains.find(m => m.model_name.startsWith('MiniMax-M'))
+        ?? data.model_remains[0];
 
-      const fiveHourUsed = minimaxModel.current_interval_total_count - minimaxModel.current_interval_usage_count;
-      const sevenDayUsed = minimaxModel.current_weekly_total_count - minimaxModel.current_weekly_usage_count;
-      const fiveHourTotal = minimaxModel.current_interval_total_count;
-      const sevenDayTotal = minimaxModel.current_weekly_total_count;
+      if (!model) return null;
+
+      // Prefer precomputed remaining_percent fields when available (avoids divide-by-zero on token-less plans)
+      const fiveHourPct = model.current_interval_remaining_percent != null
+        ? 100 - model.current_interval_remaining_percent
+        : model.current_interval_total_count > 0
+          ? Math.round(((model.current_interval_total_count - model.current_interval_usage_count) / model.current_interval_total_count) * 100)
+          : null;
+
+      const sevenDayPct = model.current_weekly_remaining_percent != null
+        ? 100 - model.current_weekly_remaining_percent
+        : model.current_weekly_total_count > 0
+          ? Math.round(((model.current_weekly_total_count - model.current_weekly_usage_count) / model.current_weekly_total_count) * 100)
+          : null;
 
       return {
-        fiveHour: fiveHourTotal > 0 ? Math.round((fiveHourUsed / fiveHourTotal) * 100) : null,
-        sevenDay: sevenDayTotal > 0 ? Math.round((sevenDayUsed / sevenDayTotal) * 100) : null,
-        fiveHourResetAt: null,
-        sevenDayResetAt: null,
+        fiveHour: fiveHourPct,
+        sevenDay: sevenDayPct,
+        fiveHourResetAt: model.end_time ? new Date(model.end_time) : null,
+        sevenDayResetAt: model.weekly_end_time ? new Date(model.weekly_end_time) : null,
       };
     })
     .catch(err => {

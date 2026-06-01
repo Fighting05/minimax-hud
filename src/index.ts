@@ -31,7 +31,7 @@ import { parseTranscript } from './transcript.js';
 import { getGitStatus } from './git.js';
 import { loadConfig } from './config.js';
 import { readCache, writeCache } from './cache.js';
-import { fetchMiniMaxUsage } from './api.js';
+import { getUsageData } from './api.js';
 import { render } from './render/index.js';
 import { t } from './i18n/index.js';
 import type { UsageCache, RenderContext } from './types.js';
@@ -71,53 +71,41 @@ async function main(): Promise<void> {
     }
 
     // Fetch usage (with cache)
-    let usageData = readCache() as UsageCache | null;
+    let cachedRaw = readCache() as UsageCache | null;
+    let usage;
 
-    if (!usageData) {
-      try {
-        const response = await fetchMiniMaxUsage(apiKey);
-        const minimaxModel = response.model_remains?.find(m => m.model_name.startsWith('MiniMax-M'));
+    if (cachedRaw) {
+      // Reconstruct UsageData from cache
+      const fiveHourPct = cachedRaw.fiveHourTotal > 0
+        ? Math.round((cachedRaw.fiveHourUsed / cachedRaw.fiveHourTotal) * 100)
+        : 0;
+      const sevenDayPct = cachedRaw.sevenDayTotal > 0
+        ? Math.round((cachedRaw.sevenDayUsed / cachedRaw.sevenDayTotal) * 100)
+        : 0;
+      usage = { fiveHour: fiveHourPct, sevenDay: sevenDayPct, fiveHourResetAt: null as Date | null, sevenDayResetAt: null as Date | null };
+    } else {
+      const fetched = await getUsageData(apiKey);
 
-        if (minimaxModel) {
-          const fiveHourUsed = minimaxModel.current_interval_total_count - minimaxModel.current_interval_usage_count;
-          const fiveHourTotal = minimaxModel.current_interval_total_count;
-          const sevenDayUsed = minimaxModel.current_weekly_total_count - minimaxModel.current_weekly_usage_count;
-          const sevenDayTotal = minimaxModel.current_weekly_total_count;
-
-          usageData = {
-            fiveHourUsed,
-            fiveHourTotal,
-            sevenDayUsed,
-            sevenDayTotal,
-          };
-          writeCache(usageData);
-        }
-      } catch (e) {
-        console.log(`${tr.fetchFailed}: ${(e as Error).message}`);
+      if (!fetched) {
+        console.log(`${tr.noUsageData}`);
         return;
       }
+
+      if (fetched.apiUnavailable) {
+        // Still render without usage data rather than bail out
+        usage = fetched;
+      } else {
+        // Persist to cache in legacy UsageCache format
+        const cacheEntry: UsageCache = {
+          fiveHourUsed: fetched.fiveHour ?? 0,
+          fiveHourTotal: 100,
+          sevenDayUsed: fetched.sevenDay ?? 0,
+          sevenDayTotal: 100,
+        };
+        writeCache(cacheEntry);
+        usage = fetched;
+      }
     }
-
-    if (!usageData) {
-      console.log(`${tr.noUsageData}`);
-      return;
-    }
-
-    // Calculate percentages
-    const fiveHourPct = usageData.fiveHourTotal > 0
-      ? Math.round((usageData.fiveHourUsed / usageData.fiveHourTotal) * 100)
-      : 0;
-    const sevenDayPct = usageData.sevenDayTotal > 0
-      ? Math.round((usageData.sevenDayUsed / usageData.sevenDayTotal) * 100)
-      : 0;
-
-    // Build usage data for render
-    const usage = {
-      fiveHour: fiveHourPct,
-      sevenDay: sevenDayPct,
-      fiveHourResetAt: null as Date | null,
-      sevenDayResetAt: null as Date | null,
-    };
 
     // Parse transcript for tools, agents, todos
     const transcriptPath = stdin.transcript_path;
