@@ -29,7 +29,7 @@ A lightweight status line HUD for MiniMax Coding Plan users, built with ❤️
 
 ```
 project/path
-[MiniMax-M2.7] [ctx] ██████░░░░░░░░░ 40% (79k/200k) │ Usage ███░░░░░░░ 25% / 5h | ░░░░░░░░░░░ 3% / 7d
+[MiniMax M3] [ctx] ██████░░░░░░░░░ 40% (79k/1.0M) │ Usage ███░░░░░░░ 25% / 5h | ░░░░░░░░░░░ 3% / 7d
 ───── separator ─────
 master ⚡
 ```
@@ -138,6 +138,18 @@ minimax-hud/
 └── README.md
 ```
 
+## 📋 Changelog
+
+### v1.1.0 — M3 Compatibility Fix
+
+- **Fix**: Quota display now works with MiniMax M3 API response format.  
+  The API changed model identifier from `MiniMax-M*` to `general` in the M3 era — old versions showed "no usage data" for all users.
+- **Fix**: Use precomputed `remaining_percent` fields from API response, avoiding divide-by-zero on unlimited plans.
+- **Improvement**: Unified API parsing logic; HUD continues to render even when the API is temporarily unavailable.
+- **Compatibility**: Works for both M2.7 and M3 users (both share the `general` quota bucket).
+
+---
+
 ## 🤝 Friends
 
 Inspired by and built参考：
@@ -151,4 +163,4 @@ MIT License · © 2024 [Fighting05](https://github.com/Fighting05)
 ## 🙏 Credits
 
 - [jarrodwatts/claude-hud](https://github.com/jarrodwatts/claude-hud) - Inspiration
-- [MiniMax](https://www.minimaxi.com/) - API support
+- [MiniMax](https://www.minimax.io/) - API support

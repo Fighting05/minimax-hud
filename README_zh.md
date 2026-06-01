@@ -27,7 +27,7 @@
 
 ```
 项目路径
-[MiniMax-M2.7] [ctx] ██████░░░░░░░░░ 40% (79k/200k) │ 用量 ███░░░░░░░ 25% / 5小时 | ░░░░░░░░░░░ 3% / 7天
+[MiniMax M3] [ctx] ██████░░░░░░░░░ 40% (79k/1.0M) │ 用量 ███░░░░░░░ 25% / 5小时 | ░░░░░░░░░░░ 3% / 7天
 ───── 分隔线 ─────
 master ⚡
 ```
@@ -136,6 +136,18 @@ minimax-hud/
 └── README.md
 ```
 
+## 📋 更新日志
+
+### v1.1.0 — M3 兼容性修复
+
+- **修复**：适配 MiniMax M3 时代 API 响应格式变更。  
+  API 将模型标识从 `MiniMax-M*` 改为 `general`，旧版本对所有用户均显示"无用量数据"。
+- **修复**：改用 API 响应中预计算的 `remaining_percent` 字段，解决无限额计划下除零问题。
+- **优化**：统一 API 解析逻辑；API 临时不可用时 HUD 仍继续渲染而非直接退出。
+- **兼容性**：M2.7 与 M3 用户均适用（两者共享 `general` 配额桶）。
+
+---
+
 ## 🤝 友链
 
 参考学习：
@@ -149,4 +161,4 @@ MIT License · © 2024 [Fighting05](https://github.com/Fighting05)
 ## 🙏 致谢
 
 - [jarrodwatts/claude-hud](https://github.com/jarrodwatts/claude-hud) - 灵感来源
-- [MiniMax](https://www.minimaxi.com/) - API 支持
+- [MiniMax](https://www.minimax.io/) - API 支持
