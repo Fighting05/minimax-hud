@@ -82,7 +82,14 @@ async function main(): Promise<void> {
       const sevenDayPct = cachedRaw.sevenDayTotal > 0
         ? Math.round((cachedRaw.sevenDayUsed / cachedRaw.sevenDayTotal) * 100)
         : 0;
-      usage = { fiveHour: fiveHourPct, sevenDay: sevenDayPct, fiveHourResetAt: null as Date | null, sevenDayResetAt: null as Date | null };
+      usage = {
+        fiveHour: fiveHourPct,
+        sevenDay: sevenDayPct,
+        fiveHourResetAt: cachedRaw.fiveHourResetAt ? new Date(cachedRaw.fiveHourResetAt) : null,
+        sevenDayResetAt: cachedRaw.sevenDayResetAt ? new Date(cachedRaw.sevenDayResetAt) : null,
+        fiveHourRemainMs: cachedRaw.fiveHourRemainMs ?? null,
+        sevenDayRemainMs: cachedRaw.sevenDayRemainMs ?? null,
+      };
     } else {
       const fetched = await getUsageData(apiKey);
 
@@ -101,6 +108,10 @@ async function main(): Promise<void> {
           fiveHourTotal: 100,
           sevenDayUsed: fetched.sevenDay ?? 0,
           sevenDayTotal: 100,
+          fiveHourResetAt: fetched.fiveHourResetAt?.getTime() ?? null,
+          sevenDayResetAt: fetched.sevenDayResetAt?.getTime() ?? null,
+          fiveHourRemainMs: fetched.fiveHourRemainMs ?? null,
+          sevenDayRemainMs: fetched.sevenDayRemainMs ?? null,
         };
         writeCache(cacheEntry);
         usage = fetched;

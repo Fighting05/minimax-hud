@@ -70,11 +70,17 @@ export function getUsageData(apiKey: string): Promise<UsageData | null> {
           ? Math.round(((model.current_weekly_total_count - model.current_weekly_usage_count) / model.current_weekly_total_count) * 100)
           : null;
 
+      // Normalize timestamps: API may return seconds or milliseconds
+      const toDate = (ts?: number): Date | null =>
+        ts ? new Date(ts < 1e12 ? ts * 1000 : ts) : null;
+
       return {
         fiveHour: fiveHourPct,
         sevenDay: sevenDayPct,
-        fiveHourResetAt: model.end_time ? new Date(model.end_time) : null,
-        sevenDayResetAt: model.weekly_end_time ? new Date(model.weekly_end_time) : null,
+        fiveHourResetAt: toDate(model.end_time),
+        sevenDayResetAt: toDate(model.weekly_end_time),
+        fiveHourRemainMs: model.remains_time ?? null,
+        sevenDayRemainMs: model.weekly_remains_time ?? null,
       };
     })
     .catch(err => {

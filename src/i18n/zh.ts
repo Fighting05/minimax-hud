@@ -18,6 +18,8 @@ export const zh: Translations = {
   usageWarning: '⚠ 用量',
   per5h: '/ 5小时',
   per7d: '/ 7天',
+  resetsIn: '后',
+  resetVerb: '重置',
 
   // Context
   context: '上下文',

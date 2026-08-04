@@ -78,6 +78,7 @@ export interface MiniMaxModelRemain {
   current_weekly_remaining_percent?: number;
   end_time?: number;
   weekly_end_time?: number;
+  remains_time?: number;  // ms remaining until current_interval end
 }
 
 export interface MiniMaxApiResponse {
@@ -93,6 +94,10 @@ export interface UsageCache {
   fiveHourTotal: number;
   sevenDayUsed: number;
   sevenDayTotal: number;
+  fiveHourResetAt?: number | null;  // epoch ms
+  sevenDayResetAt?: number | null;  // epoch ms
+  fiveHourRemainMs?: number | null;
+  sevenDayRemainMs?: number | null;
 }
 
 // ============================================================================
@@ -177,6 +182,8 @@ export interface UsageData {
   sevenDay: number | null;   // 0-100 percentage
   fiveHourResetAt: Date | null;
   sevenDayResetAt: Date | null;
+  fiveHourRemainMs?: number | null;
+  sevenDayRemainMs?: number | null;
   apiUnavailable?: boolean;
   apiError?: string;
 }

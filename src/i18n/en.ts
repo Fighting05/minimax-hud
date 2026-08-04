@@ -16,6 +16,8 @@ export const en = {
   usageWarning: '⚠ Usage',
   per5h: '/ 5h',
   per7d: '/ 7d',
+  resetsIn: 'in',
+  resetVerb: 'resets',
 
   // Context
   context: 'Context',
